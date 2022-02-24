@@ -1,0 +1,5 @@
+transaction_id,account_number,transaction_date,transaction_type,transaction_amount
+500,50,17/11/2018-9:44,D,1000
+600,60,17/11/2018-9:44,C,200
+700,70,17/11/2018-9:44,C,4000
+800,80,17/11/2018-9:44,D,500
