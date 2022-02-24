@@ -9,6 +9,7 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.support.CompositeItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,14 +22,15 @@ public class JobConfig {
     @Autowired private  StepBuilderFactory stepBuilderFactory;
     @Autowired private  ItemReader<BankTransaction> bankTransactionItemReader;
     @Autowired private  ItemWriter<BankTransaction> bankTransactionItemWriter;
-    @Autowired private  ItemProcessor<BankTransaction, BankTransaction> bankTransactionItemProcessor;
+    @Autowired private CompositeItemProcessor<BankTransaction,BankTransaction> compositeItemProcessor ;
+
 
     @Bean
     public Job backJob(){
         Step step1 = stepBuilderFactory.get("step-load-data")
                 .<BankTransaction,BankTransaction>chunk(100)
                 .reader(bankTransactionItemReader)
-                .processor(bankTransactionItemProcessor)
+                .processor(compositeItemProcessor)
                 .writer(bankTransactionItemWriter)
                 .build();
         return jobBuilderFactory.get("banck-data-loader-job").start(step1).build();

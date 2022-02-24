@@ -16,6 +16,7 @@ import org.springframework.batch.item.file.LineMapper;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.batch.item.support.CompositeItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -23,12 +24,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
 @EnableBatchProcessing
 public class SpringBatchConfig {
 
+    @Autowired private  ItemProcessor<BankTransaction, BankTransaction> bankTransactionItemProcessor;
+    @Autowired private ItemProcessor<BankTransaction,BankTransaction> bankTransactionItemAnalyticsProcessor;
 
     @Bean
     public FlatFileItemReader<BankTransaction> bankTransactionItemReader(@Value("${inputFile}") Resource inputFile){
@@ -41,6 +45,18 @@ public class SpringBatchConfig {
 
         return flatFileItemReader;
 
+    }
+    @Bean
+    public CompositeItemProcessor<BankTransaction,BankTransaction> compositeItemProcessor(){
+        List<ItemProcessor<BankTransaction,BankTransaction>> itemProcessorList = new ArrayList<>();
+
+        itemProcessorList.add(bankTransactionItemProcessor);
+        itemProcessorList.add(bankTransactionItemAnalyticsProcessor);
+
+        CompositeItemProcessor<BankTransaction,BankTransaction> compositeItemProcessor = new CompositeItemProcessor<>();
+        compositeItemProcessor.setDelegates(itemProcessorList);
+
+        return compositeItemProcessor;
     }
     @Bean
     public LineMapper<BankTransaction> lineMapper(){
